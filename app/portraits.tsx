@@ -4,25 +4,14 @@
  */
 
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
 import Colors from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
 import PortraitCard from '@/components/PortraitCard';
 import { portraits } from '@/data/portraits';  // Import from data file
 
 export default function PortraitsScreen() {
-  const [menuVisible, setMenuVisible] = useState(false);
-
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-      />
-
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

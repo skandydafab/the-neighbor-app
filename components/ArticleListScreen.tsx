@@ -1,9 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, TextStyle } from 'react-native';
-import { useState } from 'react';
 import Colors from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
 import ArticleCard from '@/components/ArticleCard';
 import { Article } from '@/data/fiction';
 
@@ -14,16 +11,8 @@ interface ArticleListScreenProps {
 }
 
 export default function ArticleListScreen({ title, articles, titleStyle }: ArticleListScreenProps) {
-  const [menuVisible, setMenuVisible] = useState(false);
-
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-      />
-
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

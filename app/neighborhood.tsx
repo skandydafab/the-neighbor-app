@@ -2,8 +2,6 @@ import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, Act
 import { useState, useEffect, useRef } from 'react';
 import Colors from '@/constants/Colors';
 import { Fonts } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
 
 const BACKEND_URL = 'https://the-neighbor.onrender.com';
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -22,7 +20,6 @@ interface Neighbor {
 const PINK = '#FF9AA2';
 
 export default function NeighborhoodScreen() {
-  const [menuVisible, setMenuVisible] = useState(false);
   const [neighbors, setNeighbors] = useState<Neighbor[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNeighbor, setSelectedNeighbor] = useState<Neighbor | null>(null);
@@ -85,9 +82,6 @@ export default function NeighborhoodScreen() {
 
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
-
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>Welcome to the neighborhood</Text>

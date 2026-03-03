@@ -1,21 +1,10 @@
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { useState } from 'react';
 import Colors from '@/constants/Colors';
 import { Fonts, TextStyles } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
 
 export default function AboutScreen() {
-  const [menuVisible, setMenuVisible] = useState(false);
-
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-      />
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

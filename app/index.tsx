@@ -1,26 +1,15 @@
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
-import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import Colors from '@/constants/Colors';
-import { Fonts, TextStyles } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
+import { Fonts } from '@/constants/Typography';
 import ArticleCard from '@/components/ArticleCard';
 import HelmuthSquircle from '@/components/HelmuthSquircle';
 import { fictionArticles } from '@/data/fiction';
 
 export default function HomeScreen() {
-  const [menuVisible, setMenuVisible] = useState(false);
-
   const featuredArticles = fictionArticles.slice(0, 3);
 
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-      />
-
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}

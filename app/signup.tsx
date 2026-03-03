@@ -1,6 +1,7 @@
 import HamburgerMenu from '@/components/HamburgerMenu';
 import Header from '@/components/header';
 import { Fonts } from '@/constants/Typography';
+import Colors from '@/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -96,7 +97,6 @@ function Label({ text }: { text: string }) {
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const [menuVisible, setMenuVisible]     = useState(false);
   const [step, setStep]                   = useState<Step>(1);
   const [page2State, setPage2State]       = useState<Page2State>('preview');
   const [firstName, setFirstName]         = useState('');
@@ -455,9 +455,6 @@ export default function SignUpScreen() {
 
   return (
     <View style={styles.screen}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      <HamburgerMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
-
       <KeyboardAvoidingView
         style={styles.kav}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

@@ -18,16 +18,11 @@
  */
 
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import Colors from '@/constants/Colors';
 import { Fonts } from '@/constants/Typography';
-import Header from '@/components/header';
-import HamburgerMenu from '@/components/HamburgerMenu';
 
 export default function ArticleDetailScreen() {
-  const [menuVisible, setMenuVisible] = useState(false);
-  
   // Get article data passed from navigation
   const params = useLocalSearchParams();
   const {
@@ -40,13 +35,6 @@ export default function ArticleDetailScreen() {
 
   return (
     <View style={styles.container}>
-      <Header onMenuPress={() => setMenuVisible(true)} />
-      
-      <HamburgerMenu 
-        visible={menuVisible}
-        onClose={() => setMenuVisible(false)}
-      />
-
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
