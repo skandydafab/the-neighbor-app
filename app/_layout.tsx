@@ -1,59 +1,85 @@
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
+/**
+ * Root Layout Component
+ * Entry point for app navigation structure
+ * Sets up fonts and loading screen
+ */
+
 import { Stack } from 'expo-router';
+import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { HeadlandOne_400Regular } from '@expo-google-fonts/headland-one';
+import Colors from '@/constants/Colors';
+import LoadingScreen from '@/components/LoadingScreen';
 
-import { useColorScheme } from '@/components/useColorScheme';
-
-export {
-  // Catch any errors thrown by the Layout component.
-  ErrorBoundary,
-} from 'expo-router';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
-};
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Prevent splash screen from auto-hiding until fonts are loaded
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-    ...FontAwesome.font,
+  // Load custom fonts
+  const [fontsLoaded] = useFonts({
+    'DaVinci-Regular': require('../assets/fonts/TRJNDaVinci-Regular-Trial.otf'),
+    'DaVinci-Medium': require('../assets/fonts/TRJNDaVinci-Medium-Trial.otf'),
+    'DaVinci-SemiBold': require('../assets/fonts/TRJNDaVinci-Semibold-Trial.otf'),
+    'DaVinci-Italic': require('../assets/fonts/TRJNDaVinci-Italic-Trial.otf'),
+    'GeistMono': require('../assets/fonts/GeistMono-VariableFont_wght.ttf'),
+    HeadlandOne_400Regular,
   });
 
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
+  // Hide splash screen once fonts are loaded
   useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  useEffect(() => {
-    if (loaded) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded]);
+  }, [fontsLoaded]);
 
-  if (!loaded) {
-    return null;
+  // Show loading screen with cycling images until fonts are ready
+  if (!fontsLoaded) {
+    return <LoadingScreen />;
   }
 
-  return <RootLayoutNav />;
-}
-
-function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-      </Stack>
-    </ThemeProvider>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {
+          backgroundColor: Colors.background,
+        },
+        animation: 'none',
+      }}
+    >
+      <Stack.Screen 
+        name="index" 
+        options={{ title: 'Home' }} 
+      />
+      <Stack.Screen 
+        name="fiction" 
+        options={{ title: 'Fiction' }} 
+      />
+      <Stack.Screen 
+        name="literature-review" 
+        options={{ title: 'Literature Review' }} 
+      />
+      <Stack.Screen 
+        name="films-music" 
+        options={{ title: 'Films & Music' }} 
+      />
+      <Stack.Screen 
+        name="portraits" 
+        options={{ title: 'Portraits' }} 
+      />
+      <Stack.Screen 
+        name="article-detail" 
+        options={{ title: 'Article' }} 
+      />
+      <Stack.Screen 
+        name="signup" 
+        options={{ title: 'Sign Up' }} 
+      />
+      <Stack.Screen 
+        name="neighborhood" 
+        options={{ title: 'Neighborhood' }} 
+      />
+    </Stack>
   );
 }
