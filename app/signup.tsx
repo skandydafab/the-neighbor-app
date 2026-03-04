@@ -1,72 +1,30 @@
-import HamburgerMenu from '@/components/HamburgerMenu';
-import Header from '@/components/header';
-import { Fonts } from '@/constants/Typography';
-import Colors from '@/constants/Colors';
-import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  StyleSheet,
+  View,
   Text,
   TextInput,
+  StyleSheet,
+  ScrollView,
   TouchableOpacity,
-  View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Image,
+  Modal,
+  Dimensions,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { useRouter } from 'expo-router';
+import Colors from '@/constants/Colors';
+import { Fonts } from '@/constants/Typography';
 
-const { width: SW } = Dimensions.get('window');
 const API_BASE_URL = 'https://the-neighbor.onrender.com';
+
+const STAR_ICON = require('@/assets/images/Sign-up Page/star.png');
 
 type Step = 1 | 2 | 3 | 4;
 type Page2State = 'preview' | 'form';
-
-// ─── All assets resolved at build time — zero network, zero re-render issues ──
-
-const ASSETS = {
-  card:          require('@/assets/images/Sign-up Page/325-560-FBF5F2.png'),
-  input220:      require('@/assets/images/Sign-up Page/220-45.png'),
-  input220Pink:  require('@/assets/images/Sign-up Page/220-45-FFE0E0.png'),
-  input220Tall:  require('@/assets/images/Sign-up Page/220-90.png'),
-  input105:      require('@/assets/images/Sign-up Page/105-45.png'),
-  input105Pink:  require('@/assets/images/Sign-up Page/105-45-FFE0E0.png'),
-  babyBox:       require('@/assets/images/Sign-up Page/235-140.png'),
-  star:          require('@/assets/images/Sign-up Page/star.png'),
-  heart:         require('@/assets/images/Sign-up Page/heart.png'),
-  arrow:         require('@/assets/images/Sign-up Page/arrow.png'),
-};
-
-// ─── Squircle wrapper ─────────────────────────────────────────────────────────
-// PNG sits absolutely behind everything. Child sits on top naturally (JSX order).
-// Mirrors the HTML exactly: <img position:absolute z-index:-1> + <input>.
-
-function Sq({
-  asset,
-  w,
-  h,
-  children,
-}: {
-  asset: any;
-  w: number;
-  h: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={{ width: w, height: h }}>
-      <Image
-        source={asset}
-        style={{ position: 'absolute', top: 0, left: 0, width: w, height: h }}
-        resizeMode="stretch"
-      />
-      {children}
-    </View>
-  );
-}
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 
@@ -85,12 +43,6 @@ function Stepper({ step }: { step: number }) {
       ))}
     </View>
   );
-}
-
-// ─── Field label ──────────────────────────────────────────────────────────────
-
-function Label({ text }: { text: string }) {
-  return <Text style={styles.label}>{text}</Text>;
 }
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
@@ -134,7 +86,6 @@ export default function SignUpScreen() {
       const body = await res.json();
       return body.exists === true;
     } catch {
-      // Network error — let them proceed, backend 409 guard will catch it
       return false;
     }
   };
@@ -217,52 +168,46 @@ export default function SignUpScreen() {
 
   const renderPage1 = () => (
     <View style={styles.page}>
+      <Text style={styles.heading}>SIGN UP</Text>
+      <Image source={STAR_ICON} style={styles.starIcon} resizeMode="contain" />
       <Text style={styles.title}>About You</Text>
-      <Image source={ASSETS.star} style={styles.starIcon} resizeMode="contain" />
 
       <View style={styles.form}>
-
         {/* Name row */}
         <View style={styles.group}>
-          <Label text="Name*" />
+          <Text style={styles.label}>NAME*</Text>
           <View style={styles.nameRow}>
-            <Sq asset={ASSETS.input105} w={105} h={45}>
-              <TextInput
-                style={[styles.input, { width: 105 }]}
-                placeholder="Jim"
-                placeholderTextColor="rgba(0,0,0,0.45)"
-                value={firstName}
-                onChangeText={setFirstName}
-                autoCapitalize="words"
-              />
-            </Sq>
-            <Sq asset={ASSETS.input105} w={105} h={45}>
-              <TextInput
-                style={[styles.input, { width: 105 }]}
-                placeholder="Carrey"
-                placeholderTextColor="rgba(0,0,0,0.45)"
-                value={surname}
-                onChangeText={setSurname}
-                autoCapitalize="words"
-              />
-            </Sq>
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Jim"
+              placeholderTextColor="#999"
+              value={firstName}
+              onChangeText={setFirstName}
+              autoCapitalize="words"
+            />
+            <TextInput
+              style={[styles.input, { flex: 1 }]}
+              placeholder="Carrey"
+              placeholderTextColor="#999"
+              value={surname}
+              onChangeText={setSurname}
+              autoCapitalize="words"
+            />
           </View>
         </View>
 
         {/* Email */}
         <View style={styles.group}>
-          <Label text="Email*" />
-          <Sq asset={ASSETS.input220} w={220} h={45}>
-            <TextInput
-              style={styles.input}
-              placeholder="carrey@gmail.com"
-              placeholderTextColor="rgba(0,0,0,0.45)"
-              value={email}
-              onChangeText={(text) => { setEmail(text); setEmailError(null); }}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </Sq>
+          <Text style={styles.label}>EMAIL*</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="carrey@gmail.com"
+            placeholderTextColor="#999"
+            value={email}
+            onChangeText={(text) => { setEmail(text); setEmailError(null); }}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
           {emailError && (
             <Text style={styles.errMsg}>{emailError}</Text>
           )}
@@ -270,16 +215,14 @@ export default function SignUpScreen() {
 
         {/* Location */}
         <View style={styles.group}>
-          <Label text="Location*" />
-          <Sq asset={ASSETS.input220} w={220} h={45}>
-            <TextInput
-              style={styles.input}
-              placeholder="Select…"
-              placeholderTextColor="rgba(0,0,0,0.45)"
-              value={location}
-              onChangeText={setLocation}
-            />
-          </Sq>
+          <Text style={styles.label}>LOCATION*</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Select…"
+            placeholderTextColor="#999"
+            value={location}
+            onChangeText={setLocation}
+          />
         </View>
 
         {Object.values(errors).some(Boolean) && (
@@ -287,28 +230,24 @@ export default function SignUpScreen() {
         )}
 
         {/* Continue */}
-        <View style={styles.group}>
-          <Sq asset={ASSETS.input220Pink} w={220} h={45}>
-            <TouchableOpacity
-              style={styles.btnInner}
-              onPress={async () => {
-                if (!validateStep1()) return;
-                setLoading(true);
-                const exists = await checkEmailExists(email.trim());
-                setLoading(false);
-                if (exists) {
-                  setEmailError('This user already exists.');
-                  return;
-                }
-                setEmailError(null);
-                setStep(2);
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.btnText}>Continue</Text>
-            </TouchableOpacity>
-          </Sq>
-        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={async () => {
+            if (!validateStep1()) return;
+            setLoading(true);
+            const exists = await checkEmailExists(email.trim());
+            setLoading(false);
+            if (exists) {
+              setEmailError('This user already exists.');
+              return;
+            }
+            setEmailError(null);
+            setStep(2);
+          }}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
 
       </View>
     </View>
@@ -323,55 +262,39 @@ export default function SignUpScreen() {
         It's your neighbor avatar.{'\n'}Upload selfie and activity:
       </Text>
 
-      <View style={styles.babyOuter}>
-        <Sq asset={ASSETS.babyBox} w={235} h={140}>
-          <View style={styles.babyInner}>
-            <View style={styles.babyItem}>
-              <View style={styles.babyImgBox} />
-              <Text style={styles.babyItemLabel}>{'"Your\nPhoto"'}</Text>
-            </View>
-            <Image
-              source={ASSETS.arrow}
-              style={styles.babyArrow}
-              resizeMode="contain"
-            />
-            <View style={styles.babyItem}>
-              <View style={styles.babyImgBox} />
-              <Text style={styles.babyItemLabel}>{'Baby\nToken'}</Text>
-            </View>
+      <View style={styles.previewBox}>
+        <View style={styles.previewRow}>
+          <View style={styles.previewItem}>
+            <View style={styles.previewImageBox} />
+            <Text style={styles.previewLabel}>Your Photo</Text>
           </View>
-        </Sq>
-        <View style={styles.babyLabelRow}>
-          <Text style={styles.babyConvertorLabel}>BABY CONVERTOR</Text>
-          <Text style={styles.babyConvertorC}>©</Text>
+          <Text style={styles.arrow}>→</Text>
+          <View style={styles.previewItem}>
+            <View style={styles.previewImageBox} />
+            <Text style={styles.previewLabel}>Baby Token</Text>
+          </View>
         </View>
       </View>
-
-      <Image source={ASSETS.heart} style={styles.heartIcon} resizeMode="contain" />
 
       <Text style={styles.questionText}>
         Generate yours and join{'\n'}the neighborhood wall?
       </Text>
 
       <View style={styles.nameRow}>
-        <Sq asset={ASSETS.input105Pink} w={105} h={45}>
-          <TouchableOpacity
-            style={styles.btnInner}
-            onPress={() => setPage2State('form')}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.btnText}>Yes</Text>
-          </TouchableOpacity>
-        </Sq>
-        <Sq asset={ASSETS.input105} w={105} h={45}>
-          <TouchableOpacity
-            style={styles.btnInner}
-            onPress={() => setOverlayVisible(true)}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.btnText}>No</Text>
-          </TouchableOpacity>
-        </Sq>
+        <TouchableOpacity
+          style={[styles.button, { flex: 1 }]}
+          onPress={() => setPage2State('form')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonText}>Yes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.buttonOutline, { flex: 1 }]}
+          onPress={() => setOverlayVisible(true)}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.buttonOutlineText}>No</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -381,78 +304,68 @@ export default function SignUpScreen() {
   const renderPage2Form = () => (
     <View style={styles.page}>
       <Text style={styles.title}>Generate Your{'\n'}Baby Token</Text>
-      <Image source={ASSETS.star} style={styles.starIcon} resizeMode="contain" />
 
       <View style={styles.form}>
-
         <View style={styles.group}>
-          <Label text="Selfie*" />
-          <Sq asset={ASSETS.input220Tall} w={220} h={90}>
-            <View style={styles.selfieBox}>
-              {!selectedImage ? (
-                <View style={styles.selfieButtons}>
-                  <TouchableOpacity
-                    style={styles.selfieBtn}
-                    onPress={() => pickImage(true)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.selfieBtnText}>Take{'\n'}Selfie</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.selfieBtn}
-                    onPress={() => pickImage(false)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.selfieBtnText}>Upload{'\n'}Selfie</Text>
-                  </TouchableOpacity>
+          <Text style={styles.label}>SELFIE*</Text>
+          <View style={styles.selfieBox}>
+            {!selectedImage ? (
+              <View style={styles.selfieButtons}>
+                <TouchableOpacity
+                  style={styles.selfieBtn}
+                  onPress={() => pickImage(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.selfieBtnText}>Take{'\n'}Selfie</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.selfieBtn}
+                  onPress={() => pickImage(false)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.selfieBtnText}>Upload{'\n'}Selfie</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.uploadDone}>
+                <View style={styles.uploadThumb}>
+                  <Text style={styles.uploadThumbText}>✓</Text>
                 </View>
-              ) : (
-                <View style={styles.uploadDone}>
-                  <View style={styles.uploadThumb}>
-                    <Text style={styles.uploadThumbText}>✓</Text>
-                  </View>
-                  <Text style={styles.uploadTitle}>Exquisite{'\n'}Selfie!</Text>
-                  <TouchableOpacity
-                    onPress={() => setSelectedImage(null)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Text style={styles.uploadRemove}>×</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </View>
-          </Sq>
+                <Text style={styles.uploadTitle}>Exquisite{'\n'}Selfie!</Text>
+                <TouchableOpacity
+                  onPress={() => setSelectedImage(null)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  <Text style={styles.uploadRemove}>×</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
           {errors.image && <Text style={styles.errMsg}>Selfie is required.</Text>}
         </View>
 
         <View style={styles.group}>
-          <Label text="Activity (optional)" />
-          <Sq asset={ASSETS.input220} w={220} h={45}>
-            <TextInput
-              style={styles.input}
-              placeholder="Eating Sandwiches"
-              placeholderTextColor="rgba(0,0,0,0.45)"
-              value={activity}
-              onChangeText={setActivity}
-            />
-          </Sq>
+          <Text style={styles.label}>ACTIVITY (OPTIONAL)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Eating Sandwiches"
+            placeholderTextColor="#999"
+            value={activity}
+            onChangeText={setActivity}
+          />
         </View>
 
-        <View style={styles.group}>
-          <Sq asset={ASSETS.input220Pink} w={220} h={45}>
-            <TouchableOpacity
-              style={styles.btnInner}
-              onPress={handleSubmit}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading
-                ? <ActivityIndicator color="#000" />
-                : <Text style={styles.btnText}>Join Community</Text>
-              }
-            </TouchableOpacity>
-          </Sq>
-        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleSubmit}
+          disabled={loading}
+          activeOpacity={0.7}
+        >
+          {loading
+            ? <ActivityIndicator color={Colors.background} />
+            : <Text style={styles.buttonText}>Join Community</Text>
+          }
+        </TouchableOpacity>
 
       </View>
     </View>
@@ -470,13 +383,7 @@ export default function SignUpScreen() {
         <View style={[styles.crack, styles.crack1]} />
         <View style={[styles.crack, styles.crack2]} />
       </View>
-      <View style={{ marginTop: 24 }}>
-        <Sq asset={ASSETS.input220} w={220} h={45}>
-          <View style={styles.typebox}>
-            <Text style={styles.typeText}>Negotiating with egg...</Text>
-          </View>
-        </Sq>
-      </View>
+      <Text style={styles.typeText}>Negotiating with egg...</Text>
     </View>
   );
 
@@ -494,30 +401,24 @@ export default function SignUpScreen() {
   // ─── Root render ─────────────────────────────────────────────────────────────
 
   return (
-    <View style={styles.screen}>
-      <KeyboardAvoidingView
-        style={styles.kav}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.card}>
-          {/* Card background PNG — absolutely positioned, never re-renders */}
-          <Image
-            source={ASSETS.card}
-            style={styles.cardBg}
-            resizeMode="stretch"
-          />
+        <Stepper step={step < 3 ? step : 3} />
 
-          <Stepper step={step < 3 ? step : 3} />
-
-          <View style={styles.pages}>
-            {step === 1 && renderPage1()}
-            {step === 2 && page2State === 'preview' && renderPage2Preview()}
-            {step === 2 && page2State === 'form'    && renderPage2Form()}
-            {step === 3 && renderPage3()}
-            {step === 4 && renderPage4()}
-          </View>
-        </View>
-      </KeyboardAvoidingView>
+        {step === 1 && renderPage1()}
+        {step === 2 && page2State === 'preview' && renderPage2Preview()}
+        {step === 2 && page2State === 'form'    && renderPage2Form()}
+        {step === 3 && renderPage3()}
+        {step === 4 && renderPage4()}
+      </ScrollView>
 
       {/* Confirmation modal */}
       <Modal transparent visible={overlayVisible} animationType="fade">
@@ -527,61 +428,47 @@ export default function SignUpScreen() {
               Are you sure? You will not be able to come back.
             </Text>
             <View style={styles.nameRow}>
-              <Sq asset={ASSETS.input105} w={105} h={45}>
-                <TouchableOpacity
-                  style={styles.btnInner}
-                  onPress={() => setOverlayVisible(false)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.btnText}>No</Text>
-                </TouchableOpacity>
-              </Sq>
-              <Sq asset={ASSETS.input105Pink} w={105} h={45}>
-                <TouchableOpacity
-                  style={styles.btnInner}
-                  onPress={submitWithoutPhoto}
-                  activeOpacity={0.8}
-                >
-                  {loading
-                    ? <ActivityIndicator color="#000" />
-                    : <Text style={styles.btnText}>Yes</Text>
-                  }
-                </TouchableOpacity>
-              </Sq>
+              <TouchableOpacity
+                style={[styles.buttonOutline, { flex: 1 }]}
+                onPress={() => setOverlayVisible(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonOutlineText}>No</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.button, { flex: 1 }]}
+                onPress={submitWithoutPhoto}
+                activeOpacity={0.8}
+              >
+                {loading
+                  ? <ActivityIndicator color={Colors.background} />
+                  : <Text style={styles.buttonText}>Yes</Text>
+                }
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  screen: {
+  container: {
     flex: 1,
-    backgroundColor: '#FBF5F2',
-  },
-  kav: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: Colors.background,
   },
 
-  // Card
-  card: {
-    width: 325,
-    minHeight: 560,
-    position: 'relative',
-    alignItems: 'center',
+  scrollView: {
+    flex: 1,
   },
-  cardBg: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: 325,
-    height: 560,
+
+  scrollContent: {
+    paddingTop: 40,
+    paddingHorizontal: 28,
+    paddingBottom: 120,
   },
 
   // Stepper
@@ -589,265 +476,266 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 36,
-    marginBottom: 20,
-    zIndex: 1,
+    marginBottom: 32,
   },
   stepDot: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: 'rgba(0,0,0,0.08)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   stepDotActive: {
-    backgroundColor: '#FFE0E0',
-    borderWidth: 1,
-    borderColor: '#1a1a1a',
+    backgroundColor: Colors.accent,
   },
   stepNum: {
     fontFamily: 'GeistMono',
-    fontSize: 10,
+    fontSize: 12,
     color: 'rgba(0,0,0,0.35)',
   },
-  stepNumActive: { color: '#1a1a1a' },
+  stepNumActive: { color: Colors.background },
   stepLine: {
-    width: 52,
-    height: 1.5,
+    width: 60,
+    height: 2,
     backgroundColor: 'rgba(0,0,0,0.1)',
-    marginHorizontal: 4,
+    marginHorizontal: 6,
   },
-  stepLineActive: { backgroundColor: '#1a1a1a' },
+  stepLineActive: { backgroundColor: Colors.accent },
 
-  // Pages wrapper
-  pages: {
+  // Page
+  page: {
     width: '100%',
-    alignItems: 'center',
-    paddingHorizontal: 52,
-    zIndex: 1,
   },
-  page: { width: '100%' },
 
   // Typography
-  title: {
-    fontFamily: Fonts.title,
-    fontSize: 34,
-    lineHeight: 37,
-    color: '#1a1a1a',
+  heading: {
+    fontFamily: Fonts.titleMedium,
+    fontSize: 42,
+    lineHeight: 48,
+    color: Colors.text,
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
+  },
+  starIcon: {
+    width: 16,
+    height: 16,
+    alignSelf: 'center',
+    marginBottom: 20,
+  },
+  title: {
+    fontFamily: Fonts.titleMedium,
+    fontSize: 28,
+    lineHeight: 34,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: 8,
   },
   subtitle: {
     fontFamily: Fonts.body,
-    fontSize: 13,
-    lineHeight: 19,
-    color: 'rgba(0,0,0,0.55)',
+    fontSize: 14,
+    lineHeight: 22,
+    color: Colors.text,
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 24,
+    opacity: 0.7,
   },
   label: {
     fontFamily: Fonts.body,
-    fontSize: 14,
-    color: 'rgba(0,0,0,0.7)',
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 1,
+    color: Colors.text,
     marginBottom: 8,
+    opacity: 0.5,
   },
   errMsg: {
     fontFamily: Fonts.body,
-    fontSize: 11,
-    color: '#E03C1F',
-    marginTop: 4,
-  },
-
-  // Icons
-  starIcon: {
-    width: 14,
-    height: 14,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  heartIcon: {
-    width: 10,
-    height: 10,
-    alignSelf: 'center',
-    marginBottom: 14,
+    fontSize: 12,
+    color: Colors.text,
+    marginTop: 6,
+    opacity: 0.6,
   },
 
   // Form
-  form: { width: 220 },
-  group: { marginBottom: 16 },
+  form: {
+    width: '100%',
+  },
+  group: {
+    marginBottom: 20,
+  },
   nameRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
   },
 
-  // Inputs — transparent so PNG shows through
+  // Inputs
   input: {
-    width: 220,
-    height: 45,
-    paddingHorizontal: 14,
     fontFamily: Fonts.body,
     fontSize: 15,
-    color: 'rgba(0,0,0,0.8)',
-    backgroundColor: 'transparent',
+    color: Colors.text,
+    borderWidth: 1,
+    borderColor: '#D0D0D0',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: Colors.background,
   },
 
   // Buttons
-  btnInner: {
-    width: '100%',
-    height: '100%',
+  button: {
+    backgroundColor: Colors.accent,
+    borderRadius: 14,
+    paddingVertical: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'transparent',
+    marginTop: 8,
   },
-  btnText: {
+  buttonText: {
     fontFamily: Fonts.body,
-    fontSize: 15,
-    color: '#1a1a1a',
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 1,
+    color: Colors.background,
+  },
+  buttonOutline: {
+    backgroundColor: 'transparent',
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: Colors.accent,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  buttonOutlineText: {
+    fontFamily: Fonts.body,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: 1,
+    color: Colors.accent,
   },
 
-  // Baby convertor
-  babyOuter: {
-    alignItems: 'center',
-    marginBottom: 10,
-    gap: 6,
+  // Preview box
+  previewBox: {
+    borderWidth: 1,
+    borderColor: '#D0D0D0',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 24,
   },
-  babyInner: {
+  previewRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
-    paddingHorizontal: 18,
-    paddingBottom: 12,
-    width: '100%',
-    height: '100%',
+    gap: 20,
   },
-  babyItem: { alignItems: 'center', gap: 6, marginBottom: 8 },
-  babyImgBox: {
-    width: 48,
-    height: 48,
-    backgroundColor: '#E8E8E8',
+  previewItem: {
+    alignItems: 'center',
+    gap: 8,
+  },
+  previewImageBox: {
+    width: 64,
+    height: 64,
+    backgroundColor: Colors.background,
+    borderWidth: 1.5,
+    borderColor: '#D0D0D0',
     borderRadius: 8,
   },
-  babyItemLabel: {
+  previewLabel: {
     fontFamily: Fonts.body,
-    fontSize: 11,
+    fontSize: 12,
+    color: Colors.text,
+    opacity: 0.6,
     textAlign: 'center',
-    color: 'rgba(0,0,0,0.6)',
   },
-  babyArrow: {
-    width: 28,
-    height: 20,
-    marginBottom: 34,
-  },
-  babyLabelRow: {
-    flexDirection: 'row',
-    width: 235,
-    paddingHorizontal: 16,
-    position: 'relative',
-  },
-  babyConvertorLabel: {
-    fontFamily: 'GeistMono',
-    fontSize: 11,
-    fontWeight: '600',
-    flex: 1,
-    textAlign: 'center',
-    color: 'rgba(0,0,0,0.6)',
-  },
-  babyConvertorC: {
-    fontFamily: 'GeistMono',
-    fontSize: 10,
-    position: 'absolute',
-    right: 8,
-    color: 'rgba(0,0,0,0.4)',
+  arrow: {
+    fontSize: 24,
+    color: Colors.text,
+    opacity: 0.4,
   },
   questionText: {
     fontFamily: Fonts.body,
-    fontSize: 13,
+    fontSize: 14,
     textAlign: 'center',
-    lineHeight: 19,
-    color: 'rgba(0,0,0,0.65)',
-    marginBottom: 12,
+    lineHeight: 22,
+    color: Colors.text,
+    marginBottom: 20,
+    opacity: 0.7,
   },
 
   // Selfie
   selfieBox: {
-    width: 220,
-    height: 90,
+    borderWidth: 1,
+    borderColor: '#D0D0D0',
+    borderRadius: 12,
+    padding: 20,
+    minHeight: 80,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selfieButtons: { flexDirection: 'row', gap: 20 },
   selfieBtn: {
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.25)',
+    borderWidth: 1.5,
+    borderColor: '#D0D0D0',
     borderRadius: 10,
-    borderStyle: 'dashed',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     alignItems: 'center',
   },
   selfieBtnText: {
     fontFamily: Fonts.body,
     fontSize: 13,
     textAlign: 'center',
-    color: 'rgba(0,0,0,0.65)',
+    color: Colors.text,
+    opacity: 0.6,
   },
   uploadDone: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
     gap: 12,
     width: '100%',
   },
   uploadThumb: {
     width: 40,
     height: 40,
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1.5,
-    borderColor: '#1a1a1a',
+    borderColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  uploadThumbText: { fontSize: 16 },
+  uploadThumbText: { fontSize: 16, color: Colors.accent },
   uploadTitle: {
     flex: 1,
     fontFamily: Fonts.body,
     fontSize: 13,
-    color: '#1a1a1a',
+    color: Colors.accent,
   },
-  uploadRemove: { fontSize: 22, color: 'rgba(0,0,0,0.35)', lineHeight: 22 },
+  uploadRemove: { fontSize: 24, color: Colors.text, opacity: 0.35 },
 
   // Egg
   egg: {
     width: 70,
     height: 88,
-    backgroundColor: '#FFE0E0',
-    borderWidth: 2,
-    borderColor: '#1a1a1a',
+    backgroundColor: Colors.accent,
     borderRadius: 35,
     alignSelf: 'center',
     marginTop: 8,
+    marginBottom: 24,
   },
   crack: {
     position: 'absolute',
     width: 2,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: Colors.background,
     borderRadius: 2,
   },
   crack1: { height: 22, top: '40%', left: '52%', transform: [{ rotate: '20deg' }] },
   crack2: { height: 22, top: '45%', left: '43%', transform: [{ rotate: '-15deg' }] },
-  typebox: {
-    width: 220,
-    height: 45,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   typeText: {
     fontFamily: Fonts.body,
-    fontSize: 12,
-    color: 'rgba(0,0,0,0.5)',
+    fontSize: 13,
+    color: Colors.text,
     textAlign: 'center',
+    opacity: 0.5,
   },
 
   // Modal
@@ -859,20 +747,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
   modalCard: {
-    backgroundColor: '#FBF5F2',
+    backgroundColor: Colors.background,
     borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: 'rgba(0,0,0,0.1)',
     padding: 24,
     width: '100%',
     alignItems: 'center',
-    gap: 16,
+    gap: 20,
   },
   modalText: {
     fontFamily: Fonts.body,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,
-    color: 'rgba(0,0,0,0.8)',
+    color: Colors.text,
   },
 });

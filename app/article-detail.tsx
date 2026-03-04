@@ -10,17 +10,21 @@
  * - Author name (16pt, Geist Mono medium, centered)
  * - Date (DD/MM/YYYY format, centered)
  * - Full article text content
- */
-/**
- * Article Detail Screen
- * Template for displaying full article content
- * Used for both Fiction and Portraits articles
+ * - Share button
+ *
+ * Entrance animation: content elements stagger in from below
+ * with a subtle slide-up and fade effect.
  */
 
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Share, Animated, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
 import { Fonts } from '@/constants/Typography';
+
+// TODO: Once the app is launched on the App Store, change this to a "Download the app" link
+const SHARE_URL = 'https://theneighborr.com';
 
 export default function ArticleDetailScreen() {
   // Get article data passed from navigation
@@ -29,31 +33,149 @@ export default function ArticleDetailScreen() {
     title = 'Article Title',
     author = 'Author Name',
     category = 'CATEGORY',
-    fullContent = '',  // Changed from 'content' to 'fullContent'
+    fullContent = '',
     date = '20/12/2024',
   } = params;
 
+  // --- Staggered entrance animation values (0 = hidden, 1 = visible) ---
+  const categoryAnim = useRef(new Animated.Value(0)).current;
+  const titleAnim = useRef(new Animated.Value(0)).current;
+  const authorAnim = useRef(new Animated.Value(0)).current;
+  const dateAnim = useRef(new Animated.Value(0)).current;
+  const contentAnim = useRef(new Animated.Value(0)).current;
+  const shareAnim = useRef(new Animated.Value(0)).current;
+
+  // --- Share button press animation ---
+  const shareScaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Staggered entrance: each element starts 80ms after the previous
+    Animated.stagger(80, [
+      Animated.timing(categoryAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(titleAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(authorAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(dateAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.timing(shareAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
+
+  // Helper to build animated style from a 0->1 animated value
+  const getAnimatedStyle = (anim: Animated.Value) => ({
+    opacity: anim,
+    transform: [
+      {
+        translateY: anim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [20, 0],
+        }),
+      },
+    ],
+  });
+
+  const handleSharePressIn = () => {
+    Animated.spring(shareScaleAnim, {
+      toValue: 0.85,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleSharePressOut = () => {
+    Animated.spring(shareScaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out "${String(title)}" by ${String(author)} — on The Neighbor\n\n${SHARE_URL}`,
+      });
+    } catch (error) {
+      console.error('Error sharing article:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
         {/* Category tag */}
-        <Text style={styles.category}>{String(category).toUpperCase()}</Text>
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(categoryAnim)]}>
+          <Text style={styles.category}>{String(category).toUpperCase()}</Text>
+        </Animated.View>
 
         {/* Article title */}
-        <Text style={styles.title}>{String(title).toUpperCase()}</Text>
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(titleAnim)]}>
+          <Text style={styles.title}>{String(title).toUpperCase()}</Text>
+        </Animated.View>
 
         {/* Author name */}
-        <Text style={styles.author}>{author}</Text>
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(authorAnim)]}>
+          <Text style={styles.author}>{author}</Text>
+        </Animated.View>
 
         {/* Date */}
-        <Text style={styles.date}>{date}</Text>
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(dateAnim)]}>
+          <Text style={styles.date}>{date}</Text>
+        </Animated.View>
 
         {/* Article content - justified text */}
-        <Text style={styles.content}>{fullContent}</Text>
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(contentAnim)]}>
+          <Text style={styles.content}>{fullContent}</Text>
+        </Animated.View>
+
+        {/* Share button */}
+        <Animated.View style={[{ width: '100%' }, getAnimatedStyle(shareAnim)]}>
+          <View style={styles.shareSection}>
+            <View style={styles.shareDivider} />
+            <Pressable
+              onPressIn={handleSharePressIn}
+              onPressOut={handleSharePressOut}
+              onPress={handleShare}
+              hitSlop={16}
+            >
+              <Animated.View
+                style={[
+                  styles.shareButton,
+                  { transform: [{ scale: shareScaleAnim }] },
+                ]}
+              >
+                <Ionicons name="share-outline" size={22} color={Colors.accent} />
+              </Animated.View>
+            </Pressable>
+          </View>
+        </Animated.View>
       </ScrollView>
     </View>
   );
@@ -121,6 +243,29 @@ const styles = StyleSheet.create({
     color: Colors.text,
     letterSpacing: 0.2,
     width: '100%',
-    textAlign: 'justify',  // Justified text
+    textAlign: 'justify',
+  },
+
+  shareSection: {
+    alignItems: 'center',
+    marginTop: 40,
+    width: '100%',
+  },
+
+  shareDivider: {
+    width: 40,
+    height: 1,
+    backgroundColor: Colors.accent,
+    marginBottom: 20,
+  },
+
+  shareButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: Colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

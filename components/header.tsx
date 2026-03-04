@@ -10,6 +10,7 @@
 
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
 import { Fonts } from '@/constants/Typography';
 
@@ -20,6 +21,7 @@ interface HeaderProps {
 
 export default function Header({ onMenuPress }: HeaderProps) {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // Navigate to homepage when title is tapped
   const handleTitlePress = () => {
@@ -33,7 +35,7 @@ export default function Header({ onMenuPress }: HeaderProps) {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
       {/* Left: Hamburger Menu Button */}
       <TouchableOpacity 
         onPress={onMenuPress}
@@ -76,9 +78,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,            // Vertical padding
     borderBottomWidth: 1,           // Thin bottom border
     borderBottomColor: Colors.headerBorder, // Light gray border
-    
-    // Safe area handling for notched devices
-    paddingTop: 50,  // Extra padding for status bar (iOS notch, etc.)
   },
 
   // Hamburger menu button (left side)

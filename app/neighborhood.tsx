@@ -1,5 +1,7 @@
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, Modal, ActivityIndicator, Dimensions, Animated, StatusBar, PanResponder, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Dimensions, Animated, StatusBar, PanResponder, Pressable } from 'react-native';
+import { Image } from 'expo-image';
 import { useState, useEffect, useRef } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Colors from '@/constants/Colors';
 import { Fonts } from '@/constants/Typography';
 
@@ -25,10 +27,33 @@ export default function NeighborhoodScreen() {
   const [selectedNeighbor, setSelectedNeighbor] = useState<Neighbor | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [interactiveMode, setInteractiveMode] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     fetchNeighbors();
   }, []);
+
+  // Pulsing loading animation
+  useEffect(() => {
+    if (loading) {
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 900,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 0.3,
+            duration: 900,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      pulse.start();
+      return () => pulse.stop();
+    }
+  }, [loading]);
 
   const fetchNeighbors = async () => {
     try {
@@ -68,7 +93,7 @@ export default function NeighborhoodScreen() {
               onPress={() => handleNeighborPress(neighbor)}
               activeOpacity={0.8}
             >
-              <Image source={{ uri: neighbor.image_url! }} style={styles.previewImage} />
+              <Image source={{ uri: neighbor.image_url! }} style={styles.previewImage} contentFit="contain" transition={300} />
               <Text style={styles.previewName} numberOfLines={1}>
                 {neighbor.firstname || ''}
               </Text>
@@ -88,7 +113,11 @@ export default function NeighborhoodScreen() {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color={Colors.accent} style={styles.loader} />
+          <Animated.View style={[styles.loadingSection, { opacity: pulseAnim }]}>
+            <Text style={styles.loadingText}>
+              Loading, please wait to{'\n'}enter the neighborhood
+            </Text>
+          </Animated.View>
         ) : (
           <>
             <View style={styles.previewSection}>
@@ -126,7 +155,8 @@ export default function NeighborhoodScreen() {
               <Image
                 source={require('../assets/images/Image Assets/7. Neighborhood/neighbors-pic.png')}
                 style={styles.placeholderImage1}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={200}
               />
             </View>
 
@@ -139,7 +169,8 @@ export default function NeighborhoodScreen() {
               <Image
                 source={require('../assets/images/Image Assets/7. Neighborhood/local-lunatic.png')}
                 style={styles.placeholderImage2}
-                resizeMode="contain"
+                contentFit="contain"
+                transition={200}
               />
             </View>
           </>
@@ -200,7 +231,7 @@ function NeighborItem({ neighbor, x, y, onTap }: { neighbor: Neighbor; x: number
       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
     >
       <Animated.View style={[styles.neighborItemInner, { transform: [{ scale: scaleAnim }] }]}>
-        <Image source={{ uri: neighbor.image_url! }} style={styles.worldNeighborImage} />
+        <Image source={{ uri: neighbor.image_url! }} style={styles.worldNeighborImage} contentFit="contain" transition={300} />
         <Text style={styles.worldNeighborName}>{neighbor.firstname || ''}</Text>
       </Animated.View>
     </Pressable>
@@ -293,6 +324,7 @@ function InteractiveNeighborhood({
   onClose: () => void;
 }) {
   const [selectedNeighbor, setSelectedNeighbor] = useState<Neighbor | null>(null);
+  const insets = useSafeAreaInsets();
 
   const WORLD_WIDTH = SCREEN_WIDTH * 5;
   const WORLD_HEIGHT = SCREEN_HEIGHT * 2;
@@ -306,12 +338,15 @@ function InteractiveNeighborhood({
     return { neighbor, x, y, key: index };
   });
 
+  // Use safe area inset for interactive header, with a minimum of 10px
+  const headerTop = Math.max(insets.top, 10);
+
   return (
     <Modal visible animationType="fade">
       <StatusBar hidden />
       <View style={styles.interactiveContainer}>
-        <View style={[styles.interactiveHeader, { zIndex: 100 }]}>
-          <TouchableOpacity style={styles.exitButton} onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <View style={[styles.interactiveHeader, { zIndex: 100, paddingTop: headerTop }]}>
+          <TouchableOpacity style={[styles.exitButton, { top: headerTop }]} onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <Text style={styles.exitButtonText}>x</Text>
           </TouchableOpacity>
           <Text style={styles.interactiveTitle}>The Neighborhood</Text>
@@ -355,14 +390,15 @@ const styles = StyleSheet.create({
   scrollContent: { paddingBottom: 60 },
   titleSection: { width: '100%', paddingHorizontal: 40, paddingTop: 40, paddingBottom: 20, alignItems: 'center' },
   title: { fontFamily: Fonts.title, fontSize: 37, color: Colors.text, textAlign: 'center', letterSpacing: -0.03, lineHeight: 41 },
-  loader: { marginTop: 40 },
+  loadingSection: { width: '100%', paddingHorizontal: 40, paddingTop: 80, alignItems: 'center' },
+  loadingText: { fontFamily: Fonts.titleItalic, fontSize: 20, color: Colors.text, textAlign: 'center', lineHeight: 30 },
 
   previewSection: { width: '100%', paddingVertical: 20, paddingHorizontal: 30 },
   previewLabel: { fontFamily: Fonts.body, fontSize: 11, color: Colors.accent, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 16, textAlign: 'center' },
   previewGrid: { alignItems: 'center' },
   previewRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: 24 },
   previewItem: { width: SCREEN_WIDTH * 0.26, marginHorizontal: 12, alignItems: 'center' },
-  previewImage: { width: SCREEN_WIDTH * 0.24, height: SCREEN_WIDTH * 0.24, resizeMode: 'contain' },
+  previewImage: { width: SCREEN_WIDTH * 0.24, height: SCREEN_WIDTH * 0.24 },
   previewName: { fontFamily: Fonts.body, fontSize: 12, color: Colors.text, marginTop: 8, textAlign: 'center' },
   previewMore: { fontFamily: Fonts.body, fontSize: 12, color: Colors.text, textAlign: 'center', marginTop: 20, fontStyle: 'italic' },
 
@@ -370,7 +406,7 @@ const styles = StyleSheet.create({
   enterButtonText: { fontFamily: Fonts.title, fontSize: 18, color: Colors.text },
 
   wallSection: { width: '100%', paddingHorizontal: 40, paddingVertical: 30, alignItems: 'center' },
-  wallText: { fontFamily: Fonts.titleItalic, fontSize: 20, color: Colors.text, textAlign: 'center', fontStyle: 'italic' },
+  wallText: { fontFamily: Fonts.title, fontSize: 24, color: Colors.text, textAlign: 'center' },
   countSection: { width: '100%', paddingHorizontal: 20, alignItems: 'center', paddingBottom: 20 },
   countLabel: { fontFamily: Fonts.body, fontSize: 14, color: Colors.text, textAlign: 'center' },
   countValue: { fontFamily: Fonts.title, fontSize: 28, color: Colors.accent, textAlign: 'center' },
@@ -379,9 +415,9 @@ const styles = StyleSheet.create({
   imageSection: { width: '100%', alignItems: 'center', paddingVertical: 20 },
   placeholderImage1: { width: '90%', height: 200 },
   ctaSection: { width: '100%', paddingHorizontal: 40, paddingVertical: 20, alignItems: 'center' },
-  ctaText: { fontFamily: Fonts.body, fontSize: 16, color: Colors.text, textAlign: 'center', marginBottom: 12 },
+  ctaText: { fontFamily: Fonts.title, fontSize: 24, color: Colors.text, textAlign: 'center', marginBottom: 12 },
   ctaSubtext: { fontFamily: Fonts.body, fontSize: 14, color: Colors.text, textAlign: 'center', lineHeight: 22 },
-  placeholderImage2: { width: '90%', height: 150 },
+  placeholderImage2: { width: '90%', height: 380 },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalContent: { width: '80%', backgroundColor: Colors.background, borderRadius: 16, padding: 24, alignItems: 'center' },
@@ -393,11 +429,11 @@ const styles = StyleSheet.create({
   worldContent: { position: 'relative' },
   worldNeighbor: { position: 'absolute', alignItems: 'center' },
   neighborItemInner: { alignItems: 'center' },
-  worldNeighborImage: { width: 110, height: 110, resizeMode: 'contain' },
+  worldNeighborImage: { width: 110, height: 110 },
   worldNeighborName: { fontFamily: Fonts.body, fontSize: 10, color: Colors.text, marginTop: 2, textAlign: 'center' },
 
-  interactiveHeader: { position: 'absolute', top: 0, left: 0, right: 0, paddingTop: 50, paddingHorizontal: 20, alignItems: 'center' },
-  exitButton: { position: 'absolute', left: 20, top: 50, width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.background, borderWidth: 2, borderColor: Colors.text, justifyContent: 'center', alignItems: 'center' },
+  interactiveHeader: { position: 'absolute', top: 0, left: 0, right: 0, paddingHorizontal: 20, alignItems: 'center' },
+  exitButton: { position: 'absolute', left: 20, width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.background, borderWidth: 2, borderColor: Colors.text, justifyContent: 'center', alignItems: 'center' },
   exitButtonText: { fontFamily: Fonts.title, fontSize: 18, color: Colors.text, marginTop: -2 },
   interactiveTitle: { fontFamily: Fonts.title, fontSize: 24, color: Colors.text },
   interactiveHint: { fontFamily: Fonts.body, fontSize: 11, color: Colors.text, opacity: 0.6, marginTop: 4 },
@@ -411,7 +447,7 @@ const styles = StyleSheet.create({
 
   activeNeighborModal: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,242,0.92)' },
   activeNeighborCard: { backgroundColor: Colors.background, borderWidth: 3, borderColor: Colors.text, padding: 24, alignItems: 'center', width: '75%' },
-  activeNeighborImage: { width: 160, height: 160, resizeMode: 'contain', marginBottom: 16 },
+  activeNeighborImage: { width: 160, height: 160, marginBottom: 16 },
   activeNeighborTitle: { fontFamily: Fonts.title, fontSize: 24, color: Colors.text, marginBottom: 8 },
   activeNeighborLocation: { fontFamily: Fonts.body, fontSize: 14, color: Colors.text, marginBottom: 8 },
   activeNeighborTap: { fontFamily: Fonts.body, fontSize: 11, color: Colors.accent, marginTop: 12 },

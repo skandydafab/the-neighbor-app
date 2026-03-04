@@ -8,7 +8,6 @@ import { View, Image, StyleSheet, Animated } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import Colors from '@/constants/Colors';
 
-// Images to cycle through during loading
 const loadingImages = [
   require('../assets/images/RUBIN KEY1.png'),
   require('../assets/images/MILLER KEY1.png'),
@@ -20,23 +19,20 @@ export default function LoadingScreen() {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Cycle through images every 500ms
     const interval = setInterval(() => {
-      // Fade out
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => {
-        // Change image
-        setCurrentImageIndex((prev) => (prev + 1) % loadingImages.length);
-        // Fade in
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 200,
           useNativeDriver: true,
-        }).start();
-      });
+        }),
+      ]).start();
+      setCurrentImageIndex((prev) => (prev + 1) % loadingImages.length);
     }, 500);
 
     return () => clearInterval(interval);

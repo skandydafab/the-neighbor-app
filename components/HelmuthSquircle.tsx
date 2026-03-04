@@ -24,7 +24,7 @@ const HELMUTH_SLIDES: CarouselSlide[] = [
   {
     id: 'orang',
     image: require('../assets/images/Image Assets/1. Home/helmuth/orang.png'),
-    caption: 'Your neighbor Orang',
+    caption: 'Your neighbor with his friends',
   },
 ];
 
