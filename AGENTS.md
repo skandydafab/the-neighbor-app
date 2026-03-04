@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is an Expo (React Native) mobile application for a literary/art magazine called "The Neighbor". The app displays fiction articles, poetry, literature reviews, films & music reviews, and character portraits.
+This is an Expo (React Native) mobile application for a literary/art magazine called "The Neighbor". The app displays fiction articles, poetry, literature reviews, films & music reviews, and character portraits. The Neighborhood page connects to a live backend (https://the-neighbor.onrender.com) for community member registration and display.
 
 ---
 
@@ -48,24 +48,24 @@ No linter currently configured.
 the-neighbor-app/
 ├── app/                   # Expo Router screens (file-based routing)
 │   ├── _layout.tsx        # Root layout with fonts & navigation
-│   ├── index.tsx          # Home screen
+│   ├── index.tsx          # Home screen with favorites and carousel
 │   ├── fiction.tsx        # Fiction articles list
 │   ├── literature-review.tsx  # Literature Review section
 │   ├── films-music.tsx    # Films & Music section
 │   ├── portraits.tsx      # Character portraits list
 │   ├── article-detail.tsx # Full article view
-│   ├── neighborhood.tsx   # Neighborhood wall with neighbor grid
-│   ├── about.tsx          # Placeholder - to be built
-│   └── signup.tsx         # Placeholder - to be built
+│   ├── neighborhood.tsx   # Neighborhood wall with API, animations, interactive mode
+│   ├── about.tsx          # About page with founders letter
+│   └── signup.tsx         # Multi-step sign up with backend integration
 ├── components/            # Reusable UI components
-│   ├── ArticleCard.tsx    # Article preview card (full-width image, category, title, description, author)
+│   ├── ArticleCard.tsx    # Article preview card
 │   ├── ArticleListScreen.tsx  # Reusable screen wrapper for article list pages
 │   ├── PortraitCard.tsx   # Portrait card (centered, pixel art style)
 │   ├── Carousel.tsx       # Horizontal swipeable carousel
 │   ├── Header.tsx         # Fixed header with hamburger, title, sign in
 │   ├── HamburgerMenu.tsx  # Full-screen overlay menu
 │   └── LoadingScreen.tsx  # Font loading screen
-├── constants/             # App-wide constants
+├── constants/
 │   ├── Colors.ts          # Color palette (#FFFFF2 background, #FF1919 accent)
 │   └── Typography.ts      # Font definitions & text styles
 ├── data/                  # Static data (separate files per section)
@@ -75,7 +75,6 @@ the-neighbor-app/
 │   └── portraits.ts       # Character portraits (pixel art images)
 ├── types/                 # TypeScript type definitions
 ├── assets/                # Images, fonts
-│   └── images/            # All images including Image Assets folder
 └── ios/, android/         # Platform-specific code
 ```
 
@@ -83,40 +82,26 @@ the-neighbor-app/
 
 ## Completed Work
 
-### Typography & Styling
-- **Fonts loaded in _layout.tsx:**
-  - DaVinci-Regular, DaVinci-Medium, DaVinci-SemiBold, DaVinci-Italic (custom)
-  - GeistMono (variable font for body text)
-  - HeadlandOne_400Regular (for "Films & Music" title)
-
-- **Typography constants (Typography.ts):**
-  - Site title: 29px DaVinci
-  - Section headers: 37px, -0.03em letter spacing, 1.1 line height, DaVinci
-  - Article titles: 27px, -0.03em letter spacing, DaVinci
-  - Category: Geist Bold (700), 15px, #FF1919 color
-  - Description: Geist Regular (400), 14px, 1.2em line height
-  - Author: Geist Medium (500), 14px
-
-### Data Files (with Images Mapped)
-- `data/fiction.ts` - 4 articles with images from `Image Assets/3. Fiction/`
-- `data/literature-review.ts` - 3 articles with images from `Image Assets/2. Literature Review/`
-- `data/films-music.ts` - 4 articles with images from `Image Assets/5. Films & Music/`
-
-### Components Built
-- **ArticleCard** - Full-width article preview with image, red category label, title, description, author
-- **ArticleListScreen** - Reusable wrapper with header, hamburger menu, scrollable article list
-- **PortraitCard** - Centered portrait card with pixel art image, category, name, description
-- **Carousel** - Horizontal swipeable carousel with card style
-- **HamburgerMenu** - Full-screen overlay with content items, heart separator, utility items
-
-### Screens
-- **Home (index.tsx)** - "Our favorites this week" section, Editorial Line carousel, footer with contact
-- **Fiction** - Uses ArticleListScreen with Fiction articles
-- **Literature Review** - Uses ArticleListScreen with Lit Review articles
-- **Films & Music** - Uses ArticleListScreen with HeadlandOne font for title
+### Pages & Screens
+- **Home (index.tsx)** - "Our favorites this week" section (DaVinci-Regular), Editorial Line carousel, footer
+- **Fiction, Literature Review, Films & Music** - Uses ArticleListScreen with static data
 - **Portraits** - Centered layout with pixel art character images
-- **Article Detail** - Full article view (existing, not modified)
-- **Neighborhood** - Neighbor wall with grid, modal details, call-to-action sections
+- **Article Detail** - Full article view
+- **About** - About page with Dear Neighbor letter, baby images of founders (Ska & Paul)
+- **Sign Up** - Multi-step form (3 steps) with image upload, backend API integration, stepper UI, squircle PNG backgrounds, validation, loading states
+- **Neighborhood** - Live API fetch (`/community`), preview grid (3-column, 6 neighbors), interactive scrollable world with golden ratio positioning, tap scale animations (Pressable + Animated.spring), neighbor detail popup with fade+scale transitions, "joined X days ago" display, rounded borders
+
+### Backend Integration
+- **API Base URL**: `https://the-neighbor.onrender.com`
+- `POST /submitMember` - FormData with firstname, lastname, email, location, image, activity
+- `GET /community` - Returns array of neighbors with image_url, firstname, lastname, location, created_at
+
+### Components & Patterns
+- **ArticleCard, ArticleListScreen, PortraitCard, Carousel** - Article/portrait display
+- **Header, HamburgerMenu** - Navigation
+- **Squircle wrapper** - PNG backgrounds with absolute positioning, transparent children (signup.tsx)
+- **Animated interactions** - Pressable with onPressIn/onPressOut triggering Animated.spring for scale
+- **Popup animations** - Parallel fade+scale using Animated.timing and Animated.spring
 
 ---
 
@@ -124,38 +109,22 @@ the-neighbor-app/
 
 ### Near-term (To Be Built)
 
-1. **Placeholder Pages** - Create simple placeholder screens for:
-   - `app/about.tsx` - Placeholder  
-   - `app/signup.tsx` - Placeholder
+1. **API Backend for articles** - Replace static data files (fiction.ts, literature-review.ts, films-music.ts, portraits.ts) with API calls to backend. Add endpoints for article fetching, filtering, and searching. Build out backend infrastructure for articles and article calls.
 
-### Future (Not Yet Scheduled)
-
-1. **Home Page Carousel Images** - Map actual images to carousel slides (currently placeholders)
-
-2. **Squirkle Background** - Add squirkle background image to Home page
-
-3. **Portrait Animations** - Portrait images are animated (not yet implemented)
-
-4. **Login/Authentication** - Add sign in/sign up functionality (API integration later)
-
-5. **Bottom Navigation Bar** - Replace header with application-like bottom bar (design TBD)
-
-6. **Backend API Integration** - Replace static data with API calls when backend is ready
+2. **Production preparation for app store submission** - Error boundaries, offline handling, optimize/compress images, test on physical devices, app store assets (screenshots, icons, metadata), permissions, analytics/crash reporting.
 
 ---
 
 ## Code Style Guidelines
 
 ### General Principles
-
 - Use functional components with hooks exclusively
 - Prefer composition over inheritance
 - Keep components small and focused (single responsibility)
 - Use TypeScript for all new code (no `.js` files)
+- **Strict mode enabled** - all types must be explicit
 
 ### TypeScript
-
-- **Strict mode is enabled** in `tsconfig.json` - all types must be explicit
 - Use `interface` for object shapes, `type` for unions/aliases
 - Avoid `any` - use `unknown` if type is truly unknown
 - Use optional properties (`?`) sparingly and intentionally
@@ -167,98 +136,43 @@ the-neighbor-app/
 | Components | PascalCase | `ArticleCard.tsx` |
 | Files (utils, hooks) | camelCase | `useAuth.ts` |
 | Interfaces/Types | PascalCase | `ArticleCardProps` |
-| Constants | PascalCase | `Colors`, `Fonts` |
+| Constants | PascalCase or SCREAMING_SNAKE | `Colors`, `API_BASE_URL` |
 | Variables/functions | camelCase | `handlePress`, `isVisible` |
 | Boolean variables | is/has/can prefix | `isVisible`, `hasContent` |
 
 ### Imports
-
-- Use path alias `@/` for internal imports (configured in tsconfig)
-- Order imports groups (separate with blank lines):
+- Use path alias `@/` for internal imports
+- Order import groups (separate with blank lines):
   1. React/Expo built-ins
   2. Third-party libraries
   3. Internal components
   4. Internal constants/hooks/utils
   5. Type definitions
 
-### Component Structure
-
-```typescript
-/**
- * Component Name
- * Brief description of what it does
- */
-import { View, Text } from 'react-native';
-import Colors from '@/constants/Colors';
-
-interface ComponentNameProps {
-  // props definition
-}
-
-export default function ComponentName({ prop1, prop2 }: ComponentNameProps) {
-  return (
-    <View style={styles.container}>
-      <Text>Content</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-});
-```
-
 ### Styling
-
 - Use `StyleSheet.create()` for all styles (not inline objects)
 - Use constants from `@/constants/Colors` and `@/constants/Typography`
 - Prefer percentage widths (`'90%'`) over fixed widths for responsiveness
-- For images, use `require()` for local assets (e.g., `require('../assets/images/...')`)
+- For images, use `require()` for local assets or `{ uri: url }` for remote
 
-### Navigation
+### Error Handling
+- Use `try/catch` for async operations (fetch, image uploads, etc.)
+- Log errors with `console.error()` for debugging
+- Show user-friendly errors with `Alert.alert()` from react-native
+- Always include `finally` block to reset loading states
 
-- Use `expo-router` for navigation (file-based routing)
-- Use `useRouter` hook for programmatic navigation
+### Animations
+- Use `Animated` API with `useNativeDriver: true` for performance
+- Use `Animated.spring()` for bouncy interactions (buttons, cards)
+- Use `Animated.timing()` for linear fades and smooth transitions
+- Use `Pressable` instead of `TouchableOpacity` inside ScrollViews
+- Always use `hitSlop` prop for small touch targets
 
----
-
-## Adding New Features
-
-### Adding a New Article Section
-
-1. Create new data file in `data/` (e.g., `data/new-section.ts`)
-2. Map images using `require()` for local assets
-3. Create screen in `app/new-section.tsx` using ArticleListScreen
-4. Add to HamburgerMenu
-5. Add route to _layout.tsx
-
-### Adding New Articles
-
-1. Add entries to appropriate data file
-2. Each entry needs: id, category, title, description, fullContent, author, date, imageUrl
-3. Use `require()` for imageUrl to map local assets
-
----
-
-## Image Asset Guidelines
-
-Images are stored in `assets/images/Image Assets/` organized by section:
-- `1. Home/` - Home page assets (carousel placeholders)
-- `2. Literature Review/` - Literature Review article images
-- `3. Fiction/` - Fiction article images
-- `4. Portraits/` - Portrait pixel art images (not yet mapped)
-- `5. Films & Music/` - Films & Music article images
-- `6. About/` - About page assets
-- `7. Neighborhood/` - Neighborhood page assets
-- `8. Sign Up/` - Sign up page assets
-
-To map images in data files:
-```typescript
-imageUrl: require('../assets/images/Image Assets/3. Fiction/article-name.png'),
-```
+### API Integration
+- Store base URL in constant: `const API_BASE_URL = 'https://the-neighbor.onrender.com'`
+- Use `FormData` for multipart requests (image uploads)
+- Handle loading states with `useState<boolean>`
+- Check `response.ok` before parsing JSON
 
 ---
 
@@ -267,4 +181,4 @@ imageUrl: require('../assets/images/Image Assets/3. Fiction/article-name.png'),
 - [Expo Documentation](https://docs.expo.dev)
 - [React Native Documentation](https://reactnative.dev/docs)
 - [Expo Router](https://docs.expo.dev/router/introduction/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [React Native Animated API](https://reactnative.dev/docs/animated)

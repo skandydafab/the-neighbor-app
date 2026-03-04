@@ -110,6 +110,7 @@ export default function SignUpScreen() {
   const [loading, setLoading]             = useState(false);
   const [errors, setErrors]               = useState<Record<string, boolean>>({});
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [emailError, setEmailError]       = useState<string | null>(null);
 
   // ─── Validation ─────────────────────────────────────────────────────────────
 
@@ -121,6 +122,21 @@ export default function SignUpScreen() {
     if (!location.trim())  e.location  = true;
     setErrors(e);
     return Object.keys(e).length === 0;
+  };
+
+  // ─── Email duplicate check ──────────────────────────────────────────────────
+
+  const checkEmailExists = async (emailToCheck: string): Promise<boolean> => {
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/check-email?email=${encodeURIComponent(emailToCheck)}`
+      );
+      const body = await res.json();
+      return body.exists === true;
+    } catch {
+      // Network error — let them proceed, backend 409 guard will catch it
+      return false;
+    }
   };
 
   // ─── Handlers ───────────────────────────────────────────────────────────────
@@ -136,6 +152,11 @@ export default function SignUpScreen() {
     fd.append('location',  location.trim());
     try {
       const res = await fetch(`${API_BASE_URL}/submitMember`, { method: 'POST', body: fd });
+      if (res.status === 409) {
+        setEmailError('This user already exists.');
+        setStep(1);
+        return;
+      }
       if (!res.ok) throw new Error('failed');
       setStep(4);
     } catch {
@@ -177,6 +198,11 @@ export default function SignUpScreen() {
     fd.append('image', selectedImage as unknown as Blob);
     try {
       const res = await fetch(`${API_BASE_URL}/submitMember`, { method: 'POST', body: fd });
+      if (res.status === 409) {
+        Alert.alert('Already Registered', 'This email is already registered.');
+        setStep(1);
+        return;
+      }
       if (!res.ok) throw new Error('Server error');
       setTimeout(() => router.push('/'), 3000);
     } catch {
@@ -232,11 +258,14 @@ export default function SignUpScreen() {
               placeholder="carrey@gmail.com"
               placeholderTextColor="rgba(0,0,0,0.45)"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => { setEmail(text); setEmailError(null); }}
               keyboardType="email-address"
               autoCapitalize="none"
             />
           </Sq>
+          {emailError && (
+            <Text style={styles.errMsg}>{emailError}</Text>
+          )}
         </View>
 
         {/* Location */}
@@ -262,7 +291,18 @@ export default function SignUpScreen() {
           <Sq asset={ASSETS.input220Pink} w={220} h={45}>
             <TouchableOpacity
               style={styles.btnInner}
-              onPress={() => { if (validateStep1()) setStep(2); }}
+              onPress={async () => {
+                if (!validateStep1()) return;
+                setLoading(true);
+                const exists = await checkEmailExists(email.trim());
+                setLoading(false);
+                if (exists) {
+                  setEmailError('This user already exists.');
+                  return;
+                }
+                setEmailError(null);
+                setStep(2);
+              }}
               activeOpacity={0.8}
             >
               <Text style={styles.btnText}>Continue</Text>
