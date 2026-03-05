@@ -4,9 +4,63 @@ import { Fonts } from '@/constants/Typography';
 import ArticleCard from '@/components/ArticleCard';
 import HelmuthSquircle from '@/components/HelmuthSquircle';
 import { fictionArticles } from '@/data/fiction';
+import { filmsMusicArticles } from '@/data/films-music';
+import { portraits } from '@/data/portraits';
+
+interface FeaturedItem {
+  id: string;
+  category: string;
+  title: string;
+  description: string;
+  fullContent: string;
+  author: string;
+  imageUrl?: any;
+  date: string;
+}
 
 export default function HomeScreen() {
-  const featuredArticles = fictionArticles.slice(0, 3);
+  const shibuyaDancing = fictionArticles.find(a => a.id === 'shibuya-dancing');
+  const rickRubin = portraits.find(p => p.name === 'Rick Rubin');
+  const mektoub = filmsMusicArticles.find(a => a.title === 'Mektoub, My Love');
+
+  const featuredImages: Record<string, any> = {
+    'rick-rubin': require('@/assets/images/Image Assets/1. Home/rick-background.png'),
+    'shibuya-dancing': require('@/assets/images/Image Assets/3. Fiction/shibuya-dancing.png'),
+    'mektoub-my-love': require('@/assets/images/Image Assets/5. Films & Music/mektoub-my-love.png'),
+  };
+
+  const featuredItems = [
+    shibuyaDancing ? {
+      id: shibuyaDancing.id,
+      category: shibuyaDancing.category,
+      title: shibuyaDancing.title,
+      description: shibuyaDancing.description,
+      fullContent: shibuyaDancing.fullContent,
+      author: shibuyaDancing.author,
+      imageUrl: featuredImages['shibuya-dancing'],
+      date: shibuyaDancing.date,
+    } : null,
+    rickRubin ? {
+      id: rickRubin.id,
+      category: rickRubin.category,
+      title: rickRubin.name,
+      description: rickRubin.description,
+      fullContent: rickRubin.fullContent,
+      author: 'Paul de Fressenel',
+      imageUrl: featuredImages['rick-rubin'],
+      date: rickRubin.date,
+    } : null,
+    mektoub ? {
+      id: mektoub.id,
+      category: mektoub.category,
+      title: mektoub.title,
+      description: mektoub.description,
+      fullContent: mektoub.fullContent,
+      author: mektoub.author,
+      imageUrl: featuredImages['mektoub-my-love'],
+      date: mektoub.date,
+    } : null,
+  ].filter(Boolean) as FeaturedItem[];
 
   return (
     <View style={styles.container}>
@@ -20,7 +74,7 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.articlesSection}>
-          {featuredArticles.map((article) => (
+          {featuredItems.map((article) => (
             <ArticleCard
               key={article.id}
               id={article.id}

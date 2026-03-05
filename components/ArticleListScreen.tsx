@@ -8,9 +8,10 @@ interface ArticleListScreenProps {
   title: string;
   articles: Article[];
   titleStyle?: TextStyle;
+  articleImages?: Record<string, any>;
 }
 
-export default function ArticleListScreen({ title, articles, titleStyle }: ArticleListScreenProps) {
+export default function ArticleListScreen({ title, articles, titleStyle, articleImages }: ArticleListScreenProps) {
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -29,7 +30,7 @@ export default function ArticleListScreen({ title, articles, titleStyle }: Artic
             description={article.description}
             fullContent={article.fullContent}
             author={article.author}
-            imageUrl={article.imageUrl}
+            imageUrl={articleImages?.[article.id] ?? article.imageUrl}
             date={article.date}
           />
         ))}
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 40,
-    paddingBottom: 40,
+    paddingBottom: 80,
     alignItems: 'center',
   },
   sectionTitle: {
