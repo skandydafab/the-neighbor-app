@@ -27,8 +27,10 @@ export default function PortraitsScreen() {
             name={portrait.name}
             description={portrait.description}
             fullContent={portrait.fullContent}
+            author={portrait.author}
             iconUrl={portrait.iconUrl}
             date={portrait.date}
+            contentSections={portrait.contentSections}
           />
         ))}
       </ScrollView>

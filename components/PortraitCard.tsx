@@ -20,8 +20,15 @@ interface PortraitCardProps {
   name: string;
   description: string;
   fullContent: string;
+  author: string;
   iconUrl: any;
   date: string;
+  contentSections?: {
+    type: 'text' | 'image';
+    content: string;
+    imageUrl?: any;
+    caption?: string;
+  }[];
 }
 
 export default function PortraitCard({
@@ -30,8 +37,10 @@ export default function PortraitCard({
   name,
   description,
   fullContent,
+  author,
   iconUrl,
   date,
+  contentSections,
 }: PortraitCardProps) {
   const router = useRouter();
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -89,10 +98,11 @@ export default function PortraitCard({
         params: {
           id,
           title: name,
-          author: category,
-          category: 'PORTRAIT',
+          author: author,
+          category: category,
           fullContent,
           date,
+          contentSections: contentSections ? JSON.stringify(contentSections) : undefined,
         },
       });
 
@@ -134,6 +144,7 @@ export default function PortraitCard({
           <Text style={styles.category}>{category}</Text>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.description}>{description}</Text>
+          <Text style={styles.author}>{author}</Text>
         </Pressable>
       </Animated.View>
 
@@ -210,5 +221,13 @@ const styles = StyleSheet.create({
     color: Colors.text,
     lineHeight: 14,
     textAlign: 'center',
+  },
+  author: {
+    fontFamily: Fonts.mono,
+    fontSize: 10,
+    fontWeight: '500',
+    color: Colors.text,
+    textAlign: 'center',
+    marginTop: 8,
   },
 });

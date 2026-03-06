@@ -17,7 +17,7 @@
  */
 
 import { useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Share, Animated, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Share, Animated, Pressable, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '@/constants/Colors';
@@ -35,7 +35,11 @@ export default function ArticleDetailScreen() {
     category = 'CATEGORY',
     fullContent = '',
     date = '20/12/2024',
+    contentSections = undefined,
   } = params;
+
+  // Parse content sections if they exist
+  const parsedContentSections = contentSections ? JSON.parse(String(contentSections)) : null;
 
   // --- Staggered entrance animation values (0 = hidden, 1 = visible) ---
   const categoryAnim = useRef(new Animated.Value(0)).current;
@@ -123,6 +127,39 @@ export default function ArticleDetailScreen() {
     }
   };
 
+  // Content sections component to render text and images
+  const ContentSectionsComponent = () => {
+    if (!parsedContentSections || parsedContentSections.length === 0) {
+      return <Text style={styles.content}>{fullContent}</Text>;
+    }
+
+    return (
+      <>
+        {parsedContentSections.map((section, index) => (
+          <View key={index} style={styles.contentSection}>
+            {section.type === 'text' && (
+              <Text style={styles.content}>{section.content}</Text>
+            )}
+            {section.type === 'image' && section.imageUrl && (
+              <View style={styles.mediaContainer}>
+                <View style={styles.mediaImageContainer}>
+                  <Image
+                    source={section.imageUrl}
+                    style={styles.mediaImage}
+                    resizeMode="contain"
+                  />
+                </View>
+                {section.caption && (
+                  <Text style={styles.mediaCaption}>{section.caption}</Text>
+                )}
+              </View>
+            )}
+          </View>
+        ))}
+      </>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -150,9 +187,9 @@ export default function ArticleDetailScreen() {
           <Text style={styles.date}>{date}</Text>
         </Animated.View>
 
-        {/* Article content - justified text */}
+        {/* Article content - justified text with sections */}
         <Animated.View style={[{ width: '100%' }, getAnimatedStyle(contentAnim)]}>
-          <Text style={styles.content}>{fullContent}</Text>
+          <ContentSectionsComponent />
         </Animated.View>
 
         {/* Share button */}
@@ -246,6 +283,39 @@ const styles = StyleSheet.create({
     textAlign: 'justify',
   },
 
+  contentSection: {
+    marginBottom: 20,
+  },
+
+  // Media styles
+  mediaContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginVertical: 30,
+  },
+  mediaImageContainer: {
+    width: 200, // Much smaller width
+    height: 260, // Proportional height
+    borderRadius: 80, // Adjusted border radius
+    overflow: 'hidden',
+    marginBottom: 15,
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+  },
+  mediaImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  mediaCaption: {
+    fontFamily: Fonts.body,
+    fontSize: 14,
+    fontWeight: '400',
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+
   shareSection: {
     alignItems: 'center',
     marginTop: 40,
@@ -267,5 +337,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 40,
   },
 });
